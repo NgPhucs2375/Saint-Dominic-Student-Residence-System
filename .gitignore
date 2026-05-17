@@ -1,0 +1,7 @@
+# Exclude documentation/text files
+*.md
+*.txt
+
+# Exclude Obsidian folders
+obsidian/
+.obsidian/
