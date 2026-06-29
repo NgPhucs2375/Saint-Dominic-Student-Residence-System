@@ -5,6 +5,6 @@ namespace Daminh.Application.Interfaces
     public interface IUnitOfWork
     {
         // Có thể bổ sung các Repository cụ thể vào đây sau
-        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

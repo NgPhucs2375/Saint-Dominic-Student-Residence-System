@@ -10,7 +10,7 @@ namespace Daminh.Domain.Entities
         public int HouseId { get; set; }
         public int CreatorId { get; set; } // Id cua nguoi tao su kien
         public string Title { get; set; } = string.Empty; // tieu de su kien
-        public string Description { get; set; }  // mo ta su kien
+        public string Description { get; set; } = string.Empty;  // mo ta su kien
         public EventType Type { get; set; } // loai su kien, su dung enum EventType de gioi han gia tri nhap vao
         public DateTime StartTime { get; set; } // thoi gian bat dau su kien
         public DateTime EndTime { get; set; } // thoi gian ket thuc

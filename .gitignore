@@ -5,3 +5,7 @@
 # Exclude Obsidian folders
 obsidian/
 .obsidian/
+
+# Dev container
+**/appsettings.Development.json
+.QuickStart

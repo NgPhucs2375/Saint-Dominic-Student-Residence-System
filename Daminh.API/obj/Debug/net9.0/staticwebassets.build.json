@@ -1,12 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "91QfFcdsTMgMtfh8h7uWNeB/8lPNLfrktSu0m2gtSTk=",
-  "Source": "Daminh.API",
-  "BasePath": "_content/Daminh.API",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
-}
+{"Version":1,"Hash":"AyS0X4VesWXZ0FzgGQns64k6DTX2QFuQO9mOU+qt+9U=","Source":"Daminh.API","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

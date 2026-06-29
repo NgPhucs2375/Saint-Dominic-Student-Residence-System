@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens; // Để sử dụng các lớp liên quan đ
 using System.IdentityModel.Tokens.Jwt;  // Để sử dụng các lớp liên quan đến JWT như JwtSecurityToken, JwtSecurityTokenHandler
 using System.Security.Claims; // Để sử dụng lớp Claim và ClaimTypes khi tạo claims cho JWT Token
 using System.Text; // Để sử dụng Encoding.UTF8.GetBytes khi tạo secret key cho JWT Token
-
+using Microsoft.AspNetCore.Authorization; // Để sử dụng thuộc tính [Authorize] để bảo vệ các endpoint yêu cầu xác thực
 namespace Daminh.API.Controllers
 {
     [Route("api/[controller]")]
@@ -95,6 +95,36 @@ namespace Daminh.API.Controllers
                 User = new { user.FullName, user.Role }
             });
             }
+
+        [HttpPost("register")]
+        [Authorize(Roles = "OB")] // Chỉ Cha OB mới có quyền tạo tài khoản
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            // 1. Kiểm tra xem email đã tồn tại chưa
+            if (_context.Users.Any(u => u.Email == request.Email))
+            {
+                return BadRequest(ApiResponse<string>.Fail("Email này đã được sử dụng!"));
+            }
+
+            // 2. Tạo User mới
+            var newUser = new User
+            {
+                FullName = request.FullName,
+                Email = request.Email,
+                // Tạm thời gán trực tiếp, sau này bạn sẽ dùng hàm Hash (như BCrypt) để bảo mật
+                PasswordHash = request.Password, 
+                Role = request.Role,
+                HouseId = request.HouseId,
+                IsActive = true,
+                ConductPoints = 100
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            return Ok(ApiResponse<string>.Ok(null, $"Tạo tài khoản {request.FullName} ({request.Role}) cho Nhà số {request.HouseId} thành công!"));
+        }
+
         }
 
     }

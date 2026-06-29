@@ -6,7 +6,7 @@ namespace Daminh.Domain.Entities
         public DateTime CreateAt {get;set;} = DateTime.UtcNow;
         public string? CreatedBy {get;set;}
         public DateTime? UpdatedAt {get;set;}
-        public string? UpdateBy {get;set;}
+        public string? UpdatedBy {get;set;}
         public bool IsDeleted {get;set;} = false; // Phu vu Soft Delete
     }
 }

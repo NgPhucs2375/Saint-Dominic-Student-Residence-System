@@ -13,8 +13,10 @@ namespace Daminh.Infrastructure.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
+        // Lấy UserId từ Claims (ở AuthController dùng ClaimTypes.NameIdentifier để lưu UserId vào Token)
         public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
+        // Lấy HouseId từ Claims (ở AuthController dùng ClaimTypes.UserData để lưu HouseId vào Token)
         public int? HouseId
         {
             get
@@ -24,6 +26,7 @@ namespace Daminh.Infrastructure.Services
             }
         }
 
+        // Lấy Role từ Claims (ở AuthController dùng ClaimTypes.Role để lưu Role vào Token)
         public string? Role => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
     }
 }

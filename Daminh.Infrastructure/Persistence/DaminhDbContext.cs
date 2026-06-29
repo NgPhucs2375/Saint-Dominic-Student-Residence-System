@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore; // Sử dụng Entity Framework Core
 using System; // Sử dụng DateTime
 using System.Threading; // Sử dụng CancellationToken
 using System.Threading.Tasks; // Sử dụng Task
+using Daminh.Application.Interfaces; 
 
 namespace Daminh.Infrastructure.Persistence
 {
     public class DaminhDbContext : DbContext
     {
         // Khai bao interface de lau HouseId cua nguoi dang nhap
-        private readonly int? _currentHouseId;
+       
+        private readonly ICurrentUserService _currentUserService;
 
-        public DaminhDbContext(DbContextOptions<DaminhDbContext> options): base(options)
+        public DaminhDbContext(DbContextOptions<DaminhDbContext> options, ICurrentUserService currentUserService): base(options)
         {
-         // Trong thực tế, bạn sẽ inject ICurrentUserService vào đây để lấy _currentHouseId từ Token JWT
-            // _currentHouseId = currentUserService.HouseId;   
+            _currentUserService = currentUserService;
         }
 
         // Khai báo các bảng trong Database
@@ -88,6 +89,10 @@ namespace Daminh.Infrastructure.Persistence
         // ==========================================
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
+
+            // Get ID of current user login to do API
+            var currentUserId = _currentUserService.UserId ?? "System"; // Lấy UserId của người dùng hiện tại từ dịch vụ CurrentUserService
+
             // Task<> : Một kiểu dữ liệu đại diện cho một tác vụ bất đồng bộ (asynchronous operation) có thể trả về một giá trị. Trong trường hợp này, Task<int> biểu thị rằng phương thức sẽ trả về một số nguyên (int) sau khi hoàn thành tác vụ.
             //CancellationToken : Một cấu trúc được sử dụng để truyền thông tin về việc hủy bỏ một tác vụ bất đồng bộ. Nó cho phép bạn yêu cầu hủy bỏ tác vụ nếu nó đang chạy, giúp quản lý tài nguyên hiệu quả hơn và tránh các tác vụ không cần thiết tiếp tục thực thi.
             foreach(var entry in ChangeTracker.Entries<BaseEntity>())
@@ -99,17 +104,17 @@ namespace Daminh.Infrastructure.Persistence
                 {
                     case EntityState.Added:
                         entry.Entity.CreateAt = DateTime.UtcNow; // Khi thêm mới, tự động gán CreateAt là thời gian hiện tại (UTC)
-                        // entry.Entity.CreatedBy = userId;
+                        entry.Entity.CreatedBy = currentUserId; // auto fill CreatedBy = UserId cua nguoi dang nhap hien tai
                         break;
                     case EntityState.Modified:
                         entry.Entity.UpdatedAt = DateTime.UtcNow; // Khi sửa đổi, tự động gán UpdatedAt là thời gian hiện tại (UTC)
-                        // entry.Entity.UpdatedBy = userId;
+                        entry.Entity.UpdatedBy = currentUserId; // auto fill UpdatedBy = UserId cua nguoi dang nhap hien tai
                         break;
                     case EntityState.Deleted:
                         entry.State = EntityState.Modified; // Chuyển trạng thái thành Modified để thực hiện Soft Delete
                         entry.Entity.IsDeleted = true; // Đánh dấu là đã xóa thay vì xóa thật sự
                         entry.Entity.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian xóa
-                        // entry.Entity.UpdatedBy = userId;
+                        entry.Entity.UpdatedBy = currentUserId; // auto fill UpdatedBy = UserId cua nguoi dang nhap hien tai
                         break; 
                 }
             }

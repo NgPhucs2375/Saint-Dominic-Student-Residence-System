@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
+using Daminh.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
+builder.Services.AddScoped<IFinancialService, FinancialService>();
 
 // ==========================================
 // 3. CẤU HÌNH BẢO MẬT JWT (Authentication)
@@ -47,6 +50,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.Zero
         };
     });
+// ==========================================
+// 3.1 CẤU HÌNH PHÂN QUYỀN (Authorization Policies)
+// ==========================================
+builder.Services.AddAuthorization(options =>
+{
+    // Policy 1 : Only Father OB (Super Admin) mới có quyền truy cập vào các endpoint này
+    options.AddPolicy("RequireSuperAdmin", policy => policy.RequireRole("OB")); // Fit với Role "OB" trong JWT Claims
+
+    // Policy 2 : Spend for Ban Quan Ly (Truong nha, Pho nha, Quan ly) de thong bao , diem danh ,... mới có quyền truy cập vào các endpoint này
+    options.AddPolicy("RequireHouseManager", policy => policy.RequireRole("TN","PN","QL")); // Fit với Role "TN", "PN", "QL" trong JWT Claims  
+
+    // Policy 3 : Luat tai chinh Only (Ql, TN)
+    options.AddPolicy("RequireFinancial", policy => policy.RequireRole("QL","TN")); // Fit với Role "QL", "TN" trong
+});
+
 
 // ==========================================
 // 4. CẤU HÌNH CONTROLLERS & SWAGGER (Tài liệu API)
@@ -77,11 +95,27 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-var app = builder.Build();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy => policy.WithOrigins("http://localhost:5173") // Cho phép cổng của React
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+});
+
+// ==========================================
+var app = builder.Build(); // Ranh gioi frezze cua .Net 6.0, sau khi build xong thì không thể thêm service nữa
+// ==========================================
+
+
 
 // ==========================================
 // 5. CẤU HÌNH PIPELINE (Luồng chạy của ứng dụng)
 // ==========================================
+app.UseMiddleware<Daminh.API.Middlewares.GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -89,7 +123,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowReactApp");
 // Thứ tự 2 dòng này CỰC KỲ QUAN TRỌNG: Xác thực (Ai vậy?) -> Phân quyền (Được làm gì?)
 app.UseAuthentication(); 
 app.UseAuthorization();
