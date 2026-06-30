@@ -5,6 +5,7 @@ using Daminh.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Daminh.Application.Services
@@ -23,18 +24,15 @@ namespace Daminh.Application.Services
         // Sinh viên tạo đơn mới
         public async Task<LeaveRequest> CreateLeaveAsync(CreateLeaveRequestDto dto, int requesterId, int houseId)
         {
-            var leaveRequest = new LeaveRequest
-            {
-                HouseId = houseId,
-                RequesterId = requesterId,
-                Reason = dto.Reason,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                Status = LeaveStatus.Pending // Mặc định khi tạo là Pending
-            };
+            var leaveRequest = new LeaveRequest(
+                houseId,
+                requesterId,
+                dto.Reason,
+                dto.StartTime,
+                dto.EndTime);
 
             await _leaveRepository.AddAsync(leaveRequest);
-            await _unitOfWork.SaveChangesAsync(); // Audit log sẽ tự ghi CreatedBy, CreateAt
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None); // Audit log sẽ tự ghi CreatedBy, CreateAt
 
             return leaveRequest;
         }
@@ -63,13 +61,30 @@ namespace Daminh.Application.Services
                 return false; // Không tìm thấy hoặc đơn đã được xử lý rồi
             }
 
-            leaveRequest.Status = isApproved ? LeaveStatus.Approved : LeaveStatus.Rejected;
-            leaveRequest.ApproverId = approverId;
+            if (isApproved)
+            {
+                leaveRequest.Approve(approverId);
+            }
+            else
+            {
+                leaveRequest.Reject(approverId);
+            }
 
             await _leaveRepository.UpdateAsync(leaveRequest);
-            await _unitOfWork.SaveChangesAsync(); // Audit log tự ghi UpdateBy, UpdatedAt
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None); // Audit log tự ghi UpdateBy, UpdatedAt
 
             return true;
+        }
+
+        public async Task<LeaveRequest?> GetByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return await _leaveRepository.GetByIdAsync(id);
+        }
+
+        public void Update(LeaveRequest leaveRequest)
+        {
+            _leaveRepository.Update(leaveRequest);
         }
     }
 }

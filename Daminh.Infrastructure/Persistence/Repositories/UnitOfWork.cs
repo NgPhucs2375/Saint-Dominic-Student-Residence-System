@@ -1,5 +1,6 @@
 using Daminh.Application.Interfaces;
 using Daminh.Infrastructure.Persistence;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Daminh.Infrastructure.Repositories
@@ -13,9 +14,9 @@ namespace Daminh.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
         {
-            return await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

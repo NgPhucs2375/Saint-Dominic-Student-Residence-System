@@ -99,7 +99,11 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
-        policy => policy.WithOrigins("http://localhost:5173") // Cho phép cổng của React
+        policy => policy.WithOrigins(
+                            "http://localhost:3000",
+                            "http://127.0.0.1:3000",
+                            "http://localhost:5173",
+                            "http://127.0.0.1:5173") // Cho phép cổng dev của frontend
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

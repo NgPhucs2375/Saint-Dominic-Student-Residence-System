@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Daminh.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Daminh.Infrastructure.Persistence;
+using System.Threading;
 namespace Daminh.API.Controllers
 {
     [Route("api/[controller]")]
@@ -61,7 +62,7 @@ namespace Daminh.API.Controllers
             };
 
             await _houseRepository.AddAsync(newHouse);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return Ok($"Tạo nhà {houseName} thành công!");
         }
@@ -79,7 +80,7 @@ namespace Daminh.API.Controllers
             house.UpdatedBy = _currentUserService.UserId;
 
             await _houseRepository.UpdateAsync(house);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return Ok($"Đã đổi tên Nhà thành {newName} thành công!");
         }
@@ -98,7 +99,7 @@ namespace Daminh.API.Controllers
             house.UpdatedBy = _currentUserService.UserId;
 
             await _houseRepository.UpdateAsync(house);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return Ok("Đã xóa Nhà thành công!");
         }

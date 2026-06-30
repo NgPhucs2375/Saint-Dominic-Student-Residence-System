@@ -2,6 +2,7 @@ using Daminh.Application.Interfaces;
 using Daminh.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Daminh.Application.Services
@@ -39,7 +40,7 @@ namespace Daminh.Application.Services
             };
 
             await _houseRepository.AddAsync(newHouse);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return houseName;
         }
@@ -53,7 +54,7 @@ namespace Daminh.Application.Services
             // Không cần gán UpdatedAt và UpdatedBy thủ công nữa vì DbContext đã tự lo
 
             await _houseRepository.UpdateAsync(house);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return true;
         }
@@ -66,7 +67,7 @@ namespace Daminh.Application.Services
             // Hàm SaveChangesAsync ở DbContext sẽ tự động bắt trạng thái Delete 
             // và chuyển nó thành Soft Delete (IsDeleted = true)
             await _houseRepository.DeleteAsync(house);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return true;
         }

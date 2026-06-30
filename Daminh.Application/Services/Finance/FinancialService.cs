@@ -5,6 +5,7 @@ using Daminh.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Daminh.Application.Services
@@ -53,7 +54,7 @@ namespace Daminh.Application.Services
             };
 
             await _transactionRepo.AddAsync(transaction);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
             return transaction;
         }
@@ -99,7 +100,7 @@ namespace Daminh.Application.Services
             // Dùng UnitOfWork lưu đồng thời cả Phiếu và Số dư Nhà. Nếu 1 cái lỗi, cả 2 sẽ Rollback.
             await _transactionRepo.UpdateAsync(transaction);
             await _houseRepo.UpdateAsync(house);
-            await _unitOfWork.SaveChangesAsync(); 
+            await _unitOfWork.SaveChangesAsync(CancellationToken.None); 
 
             return true;
         }

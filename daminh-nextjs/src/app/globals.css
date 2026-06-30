@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #FDFCF8;
+  color: #2D2B2A;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Tùy chỉnh thanh cuộn hoàng gia */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E8E4DB;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B5965A;
+}
+
+/* Animations mượt mà được dùng chung cho mọi Components */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
