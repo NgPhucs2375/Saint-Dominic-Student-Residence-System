@@ -1,9 +1,14 @@
 //Interceptor - Nơi xử lý mọi Request/Reponse chung (như gắn Token, xử lý lỗi 401,..)
 import axios from 'axios';
 
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5119/api';
+
 const apiClient = axios.create({
-    baseURL: 'http://localhost:5119/api', // Địa chỉ Backend .NET của bạn
-    headers: { 'Content-Type': 'application/json' }
+    baseURL,
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
 // Request Interceptor: Tự động gắn Token vào Header

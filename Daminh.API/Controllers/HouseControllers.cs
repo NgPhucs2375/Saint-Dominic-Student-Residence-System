@@ -108,44 +108,6 @@ namespace Daminh.API.Controllers
         // 2. API QUẢN LÝ TAI CHÍNH NHÀ (House Financial Management APIs)
         // ==================================== //
 
-        // API Duyet chi tiêu (Chỉ Trưởng nhà và QL mới được duyệt chi tiêu)
-        [HttpPut("approve-transaction")]
-        [Authorize(Policy = "RequireFinancial")] // Chỉ Trưởng nhà (TN) và Quản lý (QL) mới được duyệt chi tiêu
-        public async Task<IActionResult> ApproveTransaction([FromBody] ApproveTransactionRequestDTO request)
-        {
-            // 1. Lấy thông tin nhà của người đang duyệt từ Token
-            var userHouseId = _currentUserService.HouseId;
-
-            // 2. Lấy giao dịch từ DB bằng biến _context 
-            var transaction = await _context.FinancialTransactions.FindAsync(request.TransactionId);
-
-            // 3. Kiểm tra các điều kiện bắt buộc
-            if (transaction == null)
-            {
-                return NotFound("Không tìm thấy phiếu thu/chi này!");
-            }
-
-            if (transaction.HouseId != userHouseId)
-            {
-                return Forbid("Bạn không có quyền duyệt phiếu thu/chi của nhà khác!");
-            }
-
-            if (transaction.Status == TransactionStatus.Hoan_Thanh)
-            {
-                return BadRequest("Giao dịch này đã được duyệt từ trước rồi!");
-            }
-
-            // 4. Thực hiện duyệt giao dịch
-            transaction.Status = TransactionStatus.Hoan_Thanh;
-            transaction.UpdatedBy = _currentUserService.UserId;
-            transaction.UpdatedAt = DateTime.UtcNow;
-
-            // [Nâng cao] Nếu muốn, bạn có thể gọi _houseRepository để cộng/trừ FundBalance của House tại đây
-
-            // 5. Lưu xuống Database
-            await _context.SaveChangesAsync();
-
-            return Ok($"Đã duyệt chi tiêu mã số {request.TransactionId} thành công!");
-        }
+        
     }
 }

@@ -29,6 +29,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
+// Đăng ký dịch vụ xác thực
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // ==========================================
 // 3. CẤU HÌNH BẢO MẬT JWT (Authentication)
@@ -98,15 +100,13 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy => policy.WithOrigins(
-                            "http://localhost:3000",
-                            "http://127.0.0.1:3000",
-                            "http://localhost:5173",
-                            "http://127.0.0.1:5173") // Cho phép cổng dev của frontend
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+    options.AddPolicy("AllowNextJsApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // Chỉ định đích danh địa chỉ Next.js
+              .AllowAnyHeader()                     // Cho phép truyền Token, Content-Type...
+              .AllowAnyMethod()                     // Cho phép GET, POST, PUT, DELETE
+              .AllowCredentials();                  // Cho phép gửi Cookie/Token chéo
+    });
 });
 
 // ==========================================
@@ -127,10 +127,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+app.UseRouting();
+app.UseCors("AllowNextJsApp");
 // Thứ tự 2 dòng này CỰC KỲ QUAN TRỌNG: Xác thực (Ai vậy?) -> Phân quyền (Được làm gì?)
-app.UseAuthentication(); 
-app.UseAuthorization();
+app.UseAuthentication();  // Xác minh Token
+app.UseAuthorization();   // Phân quyền Role
 
 // Ánh xạ các Controllers
 app.MapControllers();

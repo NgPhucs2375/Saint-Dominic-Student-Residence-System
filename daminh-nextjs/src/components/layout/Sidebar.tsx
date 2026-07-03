@@ -16,11 +16,11 @@ interface SidebarProps {
 }
 
 const NAV = [
-  { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
-  { id: "houses", label: "Quản lý Nhà", icon: Home },
-  { id: "members", label: "Nhân sự", icon: Users },
-  { id: "finance", label: "Tài chính", icon: Wallet },
-  { id: "leaves", label: "Xin phép", icon: CalendarOff },
+  { id: "dashboard", href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+  { id: "houses", href: "/house", label: "Quản lý Nhà", icon: Home },
+  { id: "members", href: "/members", label: "Nhân sự", icon: Users },
+  { id: "finance", href: "/finance", label: "Tài chính", icon: Wallet },
+  { id: "leaves", href: "/leaves", label: "Xin phép", icon: CalendarOff },
 ];
 
 export default function Sidebar({ user, pendingLeavesCount = 0 }: SidebarProps) {
@@ -28,7 +28,7 @@ export default function Sidebar({ user, pendingLeavesCount = 0 }: SidebarProps) 
   
   const pathname = usePathname();
   const router = useRouter(); // Khởi tạo bộ điều hướng
-  const currentTab = pathname?.substring(1) || "dashboard";
+  const currentTab = pathname || "/dashboard";
 
   // 2. SIDEBAR TỰ QUẢN LÝ VIỆC ĐĂNG XUẤT
   const handleLogout = () => {
@@ -71,9 +71,9 @@ export default function Sidebar({ user, pendingLeavesCount = 0 }: SidebarProps) 
       {/* Menu Điều hướng */}
       <nav style={{ flex: 1, padding: "0 16px", display: "flex", flexDirection: "column", gap: 8, overflowX: "hidden" }}>
         {NAV.map(n => {
-          const act = currentTab === n.id;
+          const act = currentTab === n.href;
           return (
-            <Link key={n.id} href={`/${n.id}`}
+            <Link key={n.id} href={n.href}
               style={{
                 display: "flex", alignItems: "center", justifyContent: isOpen ? "flex-start" : "center",
                 gap: isOpen ? 14 : 0, padding: isOpen ? "14px 18px" : "14px 0", 
